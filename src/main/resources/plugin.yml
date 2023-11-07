@@ -1,0 +1,7 @@
+name: ItemUtils
+version: '${project.version}'
+main: dev.efekos.iu.Main
+api-version: '1.20'
+authors: [efekos]
+description: Adds some small details to ground items
+author: efekos
