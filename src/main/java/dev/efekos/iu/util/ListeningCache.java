@@ -10,7 +10,7 @@ public class ListeningCache {
     private int lastCount;
 
     public ListeningCache(UUID worldId, int lastCount) {
-        this(false,false,false,worldId,lastCount);
+        this(false, false, false, worldId, lastCount);
     }
 
     public ListeningCache(boolean purpleGlowed, boolean yellowGlowed, boolean aquaGlowed, UUID worldId, int lastCount) {

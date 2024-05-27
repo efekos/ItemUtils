@@ -16,10 +16,10 @@ public final class Main extends JavaPlugin {
         instance = this;
 
         EntityEvents a = new EntityEvents();
-        getServer().getPluginManager().registerEvents(a,this);
+        getServer().getPluginManager().registerEvents(a, this);
         getServer().getLogger().info("loaded events");
 
-        a.TICK.runTaskTimer(this,0,1);
+        a.TICK.runTaskTimer(this, 0, 1);
     }
 
     @Override
