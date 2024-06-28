@@ -22,8 +22,4 @@ public final class Main extends JavaPlugin {
         a.TICK.runTaskTimer(this, 0, 1);
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
 }
