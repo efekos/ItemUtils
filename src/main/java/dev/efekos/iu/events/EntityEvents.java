@@ -3,13 +3,13 @@ package dev.efekos.iu.events;
 import dev.efekos.iu.Main;
 import dev.efekos.iu.util.ItemRarity;
 import dev.efekos.iu.util.ListeningCache;
-import net.minecraft.world.item.EnumItemRarity;
+import net.minecraft.world.item.Rarity;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftItem;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R1.util.CraftChatMessage;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -64,17 +64,17 @@ public class EntityEvents implements Listener {
             caches.forEach((uuid, cache) -> {
                 World world = Main.getInstance().getServer().getWorld(cache.getWorldId());
                 Optional<Entity> entity = world.getEntities().stream().filter(r -> r.getUniqueId().equals(uuid)).findFirst();
-                if (!entity.isPresent()) {
+                if (entity.isEmpty()) {
                     removals.add(uuid);
                 } else {
                     Item item = ((Item) entity.get());
 
                     if (cache.isAquaGlowed())
-                        world.spawnParticle(Particle.REDSTONE, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.AQUA, 0.5F));
+                        world.spawnParticle(Particle.DUST, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.AQUA, 0.5F));
                     if (cache.isYellowGlowed())
-                        world.spawnParticle(Particle.REDSTONE, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.YELLOW, 0.5F));
+                        world.spawnParticle(Particle.DUST, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.YELLOW, 0.5F));
                     if (cache.isPurpleGlowed())
-                        world.spawnParticle(Particle.REDSTONE, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.PURPLE, 0.5F));
+                        world.spawnParticle(Particle.DUST, item.getLocation().add(0, 0.25, 0), 1, .2, .2, .2, new Particle.DustOptions(Color.PURPLE, 0.5F));
 
                     if (item.getItemStack().getAmount() != cache.getLastCount() || getAge(item) > 5500) {
                         cache.setLastCount(item.getItemStack().getAmount());
@@ -88,7 +88,7 @@ public class EntityEvents implements Listener {
     };
 
     private int getAge(Item item) {
-        return ((CraftItem) item).getHandle().g;
+        return ((CraftItem) item).getHandle().age;
     }
 
     private ItemRarity updateText(Item item) {
@@ -101,7 +101,7 @@ public class EntityEvents implements Listener {
 
         net.minecraft.world.item.ItemStack craftCopy = CraftItemStack.asNMSCopy(stack);
 
-        ItemRarity rarity = toUnderstandable(craftCopy.C()); // ItemStacks and Items have a method called .getRarity(), obfuscated to .C() in here
+        ItemRarity rarity = toUnderstandable(craftCopy.getRarity()); // ItemStacks and Items have a method called .getRarity(), obfuscated to .C() in here
 
         int age = getAge(item);
         int i = 17;
@@ -122,14 +122,14 @@ public class EntityEvents implements Listener {
         lines.add("{\"text\":\"x" + stack.getAmount() + "\",\"color\":\"" + (b ? "dark_red" : "gray") + "\"}");
 
         // I have to use this because bukkit item doesn't support TextComponents.
-        craftItem.getHandle().b(CraftChatMessage.fromJSON("[" + String.join(",", lines) + "]"));
+        craftItem.getHandle().setCustomName(CraftChatMessage.fromJSON("[" + String.join(",", lines) + "]"));
 
         return rarity;
     }
 
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent e) {
-        if (e.getEntityType() != EntityType.DROPPED_ITEM) return;
+        if (e.getEntityType() != EntityType.ITEM) return;
 
         Item item = (Item) e.getEntity();
 
@@ -153,16 +153,12 @@ public class EntityEvents implements Listener {
 
     }
 
-    private static ItemRarity toUnderstandable(EnumItemRarity rarity) {
-        switch (rarity) {
-            case b:
-                return ItemRarity.UNCOMMON;
-            case c:
-                return ItemRarity.RARE;
-            case d:
-                return ItemRarity.EPIC;
-            default:
-                return ItemRarity.COMMON;
-        }
+    private static ItemRarity toUnderstandable(Rarity rarity) {
+        return switch (rarity) {
+            case UNCOMMON -> ItemRarity.UNCOMMON;
+            case RARE -> ItemRarity.RARE;
+            case EPIC -> ItemRarity.EPIC;
+            default -> ItemRarity.COMMON;
+        };
     }
 }
