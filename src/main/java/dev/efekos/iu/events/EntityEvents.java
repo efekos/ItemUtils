@@ -88,7 +88,7 @@ public class EntityEvents implements Listener {
     };
 
     private int getAge(Item item) {
-        return ((CraftItem) item).getHandle().age;
+        return ((CraftItem) item).getHandle().getAge();
     }
 
     private ItemRarity updateText(Item item) {
